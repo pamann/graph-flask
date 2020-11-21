@@ -34,7 +34,12 @@ def process_comp_jobs(tt_page_s, tier, desc):
         return tt_bidi_links
 
 def fetch_links(root_term):
+    global nodes
+    global links
     global jobs
+
+    nodes = set()
+    links = set()
     search_r = wikipedia.search(root_term)
     root = wikipedia.page(search_r[0])
     root_id = root.pageid

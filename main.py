@@ -1,12 +1,4 @@
 from flask import (Flask, render_template)
-# from pywikiapi import wikipedia as pywiki
-# import wikipedia
-# import time
-# import json
-# from concurrent.futures import ThreadPoolExecutor
-# from concurrent import futures
-# from multiprocessing import Pool
-# import hashlib
 from flask import request
 from flask import jsonify
 
@@ -18,10 +10,11 @@ app = Flask("__main__")
 def my_index():
     return render_template("index.html", flask_token="Hello   world")
 
-@app.route("/see")
-def return_search():
-    search = request.args.get('search')
-    # return jsonify(search)
+@app.route("/see/<search>")
+def return_search(search):
+    # search = search
+    # search = request.args.get('search')
+    # return render_template("index.html", data=jsonify(search_term(search)))
     return jsonify(search_term(search))
 
 app.run(debug=True)
