@@ -1,6 +1,7 @@
 from flask import (Flask, render_template)
 from flask import request
 from flask import jsonify
+import wikipedia
 
 from bfs_simple import search_term
 
@@ -16,5 +17,11 @@ def return_search(search):
     # search = request.args.get('search')
     # return render_template("index.html", data=jsonify(search_term(search)))
     return jsonify(search_term(search))
+
+@app.route("/meta/<term>")
+def metadata_fetch(term):
+    page = wikipedia.page(term, preload=True)
+    res = { "title": page.title, "summary": page.summary, "image": page.images }
+    return jsonify(res)
 
 app.run(threaded=True)
