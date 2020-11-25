@@ -28,7 +28,12 @@ def process_comp_jobs(tt_page_s, tier, desc):
         lh = [v.title for v in tt_page_s.linkshere]
         lset = set(l)
         lhset = set(lh)
-        tt_bidi_links = lset.intersection(lhset)
+        if (tier == 2):
+            tt_bidi_links = list(lset.intersection(lhset))
+            tt_bidi_links = set(tt_bidi_links[0:7])
+        elif (tier == 1): 
+            tt_bidi_links = list(lset.intersection(lhset))
+            tt_bidi_links = set(tt_bidi_links[0:10])
         aggregate_nodes(tt_bidi_links, tier, desc)
         aggregate_links(tt_page_s.title, tt_bidi_links) 
         return tt_bidi_links
@@ -66,6 +71,8 @@ def aggregate_links(nodeid, res):
 
 def aggregate_nodes(n_list, v, desc=''):
     global nodes
+    if (v == 1):
+        desc = ''
     obj = set([(node, v, desc) for node in n_list])
     nodes = nodes.union(set(obj))
 
