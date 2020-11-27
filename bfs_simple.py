@@ -14,23 +14,30 @@ links = set()
 site = pywiki('en')
 pool = ThreadPoolExecutor(8) # 8 threads, adjust to taste and # of cores
 jobs = []
+views_dict = {}
 
 def query_wiki(ttls, tier):
     global site
-    for page in site.query(titles=ttls, format="json", pllimit="max", lhlimit="max", prop=["links", "linkshere", "description"], redirects=True):
+    for page in site.query(titles=ttls, format="json", pllimit="max", pvipdays=5, lhlimit="max", prop=["links", "linkshere", "description", "pageviews"], redirects=True):
         page = page.pages[0]
-        return process_comp_jobs(page, tier, page.description)
+        return process_comp_jobs(page, tier, page.description, page.pageviews)
     
 
-def process_comp_jobs(tt_page_s, tier, desc):
+def process_comp_jobs(tt_page_s, tier, desc, views):
+    global views_dict
     if 'links' in tt_page_s and 'linkshere' in tt_page_s:
         l = [v.title for v in tt_page_s.links]
         lh = [v.title for v in tt_page_s.linkshere]
         lset = set(l)
         lhset = set(lh)
+        views = np.mean(list(views.values()))
+        views_dict[tt_page_s.title] = views
+        
+        # print(views)
         if (tier == 2):
             tt_bidi_links = list(lset.intersection(lhset))
-            tt_bidi_links = set(tt_bidi_links[0:7])
+            tt_bidi_links = set(tt_bidi_links)
+
         elif (tier == 1): 
             tt_bidi_links = list(lset.intersection(lhset))
             tt_bidi_links = set(tt_bidi_links[0:10])
@@ -51,7 +58,11 @@ def fetch_links(root_term):
     summary = root.summary.split('.')[0]
     count = 0
     aggregate_nodes([root_term], 3, summary)
+
+    mean = np.mean(list(views_dict.values()))
     bidi_links = query_wiki(root_term, 2)
+    bidi_links = set(filter( lambda x: (views_dict[x[0]] > mean if x[0] in views_dict else 0) or x[1] == 1, nodes))
+
 
     with ThreadPoolExecutor(8) as executor: # start threaded bidi links of second tier
         for bidi_link in bidi_links:
@@ -79,15 +90,24 @@ def aggregate_nodes(n_list, v, desc=''):
 def search_term(search):
     global nodes
     global links
+    global views_dict
 
     fetch_links(search)
     # unpack sets of tuples into lists of dicts
+    # print(views_dict)
+    # print(nodes)
+    
+    # print(len(nodes))
+    # nodes = set(filter( lambda x: (views_dict[x[0]] > mean if x[0] in views_dict else 0) or x[1] == 1, nodes))
+    # print(len(nodes))
     l_nodes = [{
         "name": name,
         "id": hashlib.md5(name.encode('utf-8')).hexdigest(),
         "val": val,
         "description": desc,
+        "views": views_dict[name] if name in views_dict else 0
     } for (name, val, desc) in nodes]
+
     l_links = [{
         "source": src,
         "target": dest

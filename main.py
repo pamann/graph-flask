@@ -14,9 +14,8 @@ def my_index():
 @app.route("/see/<search>")
 def return_search(search):
     search = search
-    # search = request.args.get('search')
-    # return render_template("index.html", data=jsonify(search_term(search)))
-    return jsonify(search_term(search))
+    return render_template("index.html", data=jsonify(search_term(search)))
+    # return jsonify(search_term(search))
 
 @app.route("/meta/<term>")
 def metadata_fetch(term):
@@ -24,4 +23,4 @@ def metadata_fetch(term):
     res = { "title": page.title, "summary": page.summary, "image": page.images }
     return jsonify(res)
 
-app.run(threaded=True)
+app.run(threaded=True, debug=True)
