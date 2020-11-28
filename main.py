@@ -13,16 +13,18 @@ def my_index():
     return render_template("index.html")
 
 
-@app.route("/see/<search>")
-def return_search(search):
-    return jsonify(search_term(search))
-
-
-@app.route("/meta/<term>")
+@app.route("/api/meta/<term>")
 def metadata_fetch(term):
     page = wikipedia.page(term, preload=True)
     res = {"title": page.title, "summary": page.summary, "image": page.images}
     return jsonify(res)
+
+
+@app.route("/api/see/<search>", methods=["GET"])
+def return_search(search):
+    print(search)
+    print(search_term(search))
+    return jsonify(search_term(search))
 
 
 app.run(threaded=True, debug=True)

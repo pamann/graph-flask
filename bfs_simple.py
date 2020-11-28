@@ -64,9 +64,7 @@ def fetch_links(root_term):
     links = set()
     search_r = wikipedia.search(root_term)
     root = wikipedia.page(search_r[0])
-    root_id = root.pageid
     summary = root.summary.split(".")[0]
-    count = 0
     aggregate_nodes([root_term], 3, summary)
 
     mean = np.mean(list(views_dict.values()))
