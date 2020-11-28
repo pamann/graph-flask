@@ -8,13 +8,11 @@ app = Flask("__main__")
 
 @app.route("/")
 def my_index():
-    return render_template("index.html", flask_token="Hello   world")
+    return render_template("index.html")
 
 @app.route("/see/<search>")
 def return_search(search):
-    # search = search
-    # search = request.args.get('search')
-    # return render_template("index.html", data=jsonify(search_term(search)))
-    return jsonify(search_term(search))
+    print(search)
+    return render_template("index.html", data=jsonify(search_term(search)))
 
 app.run(debug=True)
