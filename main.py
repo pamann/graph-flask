@@ -10,7 +10,7 @@ app = Flask("__main__")
 def my_index():
     return render_template("index.html")
 
-@app.route("/see/<search>", methods=['GET'])
+@app.route("/api/see/<search>", methods=['GET'])
 def return_search(search):
     print(search)
     print(search_term(search))
