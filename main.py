@@ -12,8 +12,8 @@ def my_index():
 
 @app.route("/api/see/<search>", methods=['GET'])
 def return_search(search):
-    print(search)
-    print(search_term(search))
+    # print(search)
+    # print(search_term(search))
     return jsonify(search_term(search))
 
 app.run(debug=True)
