@@ -10,9 +10,10 @@ app = Flask("__main__")
 def my_index():
     return render_template("index.html")
 
-@app.route("/see/<search>")
+@app.route("/see/<search>", methods=['GET'])
 def return_search(search):
     print(search)
-    return render_template("index.html", data=jsonify(search_term(search)))
+    print(search_term(search))
+    return jsonify(search_term(search))
 
 app.run(debug=True)
