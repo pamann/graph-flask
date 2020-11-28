@@ -1,0 +1,5 @@
+// Install pylint and use black autoformatter to match lint settings
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
+}
