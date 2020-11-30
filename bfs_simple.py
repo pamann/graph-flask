@@ -124,7 +124,7 @@ def search_term(search):
             "id": hashlib.md5(name.encode("utf-8")).hexdigest(),
             "val": val,
             "description": desc,
-            "views": views_dict[name] if name in views_dict else 0,
+            # "views": views_dict[name] if name in views_dict else 0,
         }
         for (name, val, desc) in nodes
     ]
