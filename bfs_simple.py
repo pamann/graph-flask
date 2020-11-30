@@ -82,8 +82,8 @@ def search_term(search):
         "description": desc,
     } for (name, val, desc) in nodes]
     l_links = [{
-        "source": src,
-        "target": dest
+        "source": hashlib.md5(src.encode('utf-8')).hexdigest(),
+        "target": hashlib.md5(dest.encode('utf-8')).hexdigest()
     } for (src, dest) in links]
 
     graph = {'nodes': l_nodes, 'links': l_links}
