@@ -89,16 +89,22 @@ def search_term(search):
 
     fetch_links(search)
     # unpack sets of tuples into lists of dicts
-    l_nodes = [{
-        "name": name,
-        "id": hashlib.md5(name.encode('utf-8')).hexdigest(),
-        "val": val,
-        "description": desc,
-    } for (name, val, desc) in nodes]
-    l_links = [{
-        "source": hashlib.md5(src.encode('utf-8')).hexdigest(),
-        "target": hashlib.md5(dest.encode('utf-8')).hexdigest()
-    } for (src, dest) in links]
+    l_nodes = [
+        {
+            "name": name,
+            "id": hashlib.md5(name.encode("utf-8")).hexdigest(),
+            "val": val,
+            "description": desc,
+        }
+        for (name, val, desc) in nodes
+    ]
+    l_links = [
+        {
+            "source": hashlib.md5(src.encode("utf-8")).hexdigest(),
+            "target": hashlib.md5(dest.encode("utf-8")).hexdigest(),
+        }
+        for (src, dest) in links
+    ]
 
-    graph = {'nodes': l_nodes, 'links': l_links}
+    graph = {"nodes": l_nodes, "links": l_links}
     return graph
