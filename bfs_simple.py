@@ -112,24 +112,22 @@ def search_term(search):
 
     fetch_links(search)
     # unpack sets of tuples into lists of dicts
-    # print(views_dict)
-    # print(nodes)
-
-    # print(len(nodes))
-    # nodes = set(filter( lambda x: (views_dict[x[0]] > mean if x[0] in views_dict else 0) or x[1] == 1, nodes))
-    # print(len(nodes))
     l_nodes = [
         {
             "name": name,
             "id": hashlib.md5(name.encode("utf-8")).hexdigest(),
             "val": val,
             "description": desc,
-            # "views": views_dict[name] if name in views_dict else 0,
         }
         for (name, val, desc) in nodes
     ]
-
-    l_links = [{"source": src, "target": dest} for (src, dest) in links]
+    l_links = [
+        {
+            "source": hashlib.md5(src.encode("utf-8")).hexdigest(),
+            "target": hashlib.md5(dest.encode("utf-8")).hexdigest(),
+        }
+        for (src, dest) in links
+    ]
 
     graph = {"nodes": l_nodes, "links": l_links}
     return graph
