@@ -13,7 +13,6 @@ def my_index():
     return render_template("index.html")
 
 
-<<<<<<< HEAD
 @app.route("/api/meta/<term>")
 def metadata_fetch(term):
     page = wikipedia.page(term, preload=True)
@@ -21,15 +20,9 @@ def metadata_fetch(term):
     return jsonify(res)
 
 
-=======
->>>>>>> b8619e1 (Configured lint)
 @app.route("/api/see/<search>", methods=["GET"])
 def return_search(search):
     return jsonify(search_term(search))
 
 
-<<<<<<< HEAD
 app.run(threaded=True, debug=True)
-=======
-app.run(debug=True)
->>>>>>> b8619e1 (Configured lint)
