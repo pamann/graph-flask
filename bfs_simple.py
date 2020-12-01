@@ -42,7 +42,6 @@ def process_comp_jobs(tt_page_s, tier, desc, views):
         views = np.mean(list(views.values()))
         views_dict[tt_page_s.title] = views
 
-        # print(views)
         if tier == 2:
             tt_bidi_links = list(lset.intersection(lhset))
             tt_bidi_links = set(tt_bidi_links)
@@ -62,8 +61,10 @@ def fetch_links(root_term):
 
     nodes = set()
     links = set()
-    search_r = wikipedia.search(root_term)
-    root = wikipedia.page(search_r[0])
+
+    wikipedia.set_lang("en")
+    search_r = wikipedia.suggest(root_term)
+    root = wikipedia.page(search_r)
     summary = root.summary.split(".")[0]
     aggregate_nodes([root_term], 3, summary)
 
@@ -81,10 +82,7 @@ def fetch_links(root_term):
         for bidi_link in bidi_links:
             jobs.append(executor.submit(query_wiki, bidi_link, 1))
         query_pool = Pool(processes=50)
-        tt_pool = [
-            query_pool.apply_async(query_wiki, (p, 1))
-            for p in futures.as_completed(jobs)
-        ]
+        [query_pool.apply_async(query_wiki, (p, 1)) for p in futures.as_completed(jobs)]
 
         query_pool.close()
         query_pool.terminate()
