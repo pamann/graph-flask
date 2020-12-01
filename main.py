@@ -8,6 +8,12 @@ from bfs_simple import search_term
 app = Flask("__main__")
 
 
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def catch_all(path):
+    return render_template("index.html")
+
+
 @app.route("/")
 def my_index():
     return render_template("index.html")
