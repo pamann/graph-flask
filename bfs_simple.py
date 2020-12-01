@@ -25,24 +25,20 @@ def query_wiki(ttls, tier):
         pllimit="max",
         pvipdays=5,
         lhlimit="max",
-        prop=["links", "linkshere", "description", "pageviews"],
+        prop=["links", "linkshere", "description"],
         redirects=True,
     ):
         page = page.pages[0]
-        return process_comp_jobs(page, tier, page.description, page.pageviews)
+        return process_comp_jobs(page, tier, page.description)
 
 
-def process_comp_jobs(tt_page_s, tier, desc, views):
-    global views_dict
+def process_comp_jobs(tt_page_s, tier, desc):
     if "links" in tt_page_s and "linkshere" in tt_page_s:
         l = [v.title for v in tt_page_s.links]
         lh = [v.title for v in tt_page_s.linkshere]
         lset = set(l)
         lhset = set(lh)
-        views = np.mean(list(views.values()))
-        views_dict[tt_page_s.title] = views
 
-        # print(views)
         if tier == 2:
             tt_bidi_links = list(lset.intersection(lhset))
             tt_bidi_links = set(tt_bidi_links)
@@ -67,24 +63,13 @@ def fetch_links(root_term):
     summary = root.summary.split(".")[0]
     aggregate_nodes([root_term], 3, summary)
 
-    mean = np.mean(list(views_dict.values()))
     bidi_links = query_wiki(root_term, 2)
-    bidi_links = set(
-        filter(
-            lambda x: (views_dict[x[0]] > mean if x[0] in views_dict else 0)
-            or x[1] == 1,
-            nodes,
-        )
-    )
 
     with ThreadPoolExecutor(8) as executor:  # start threaded bidi links of second tier
         for bidi_link in bidi_links:
             jobs.append(executor.submit(query_wiki, bidi_link, 1))
         query_pool = Pool(processes=50)
-        tt_pool = [
-            query_pool.apply_async(query_wiki, (p, 1))
-            for p in futures.as_completed(jobs)
-        ]
+        [query_pool.apply_async(query_wiki, (p, 1)) for p in futures.as_completed(jobs)]
 
         query_pool.close()
         query_pool.terminate()
