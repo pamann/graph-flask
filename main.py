@@ -26,7 +26,7 @@ def metadata_fetch(term):
     return jsonify(res)
 
 
-@app.route("/api/see/<search>", methods=["GET"])
+@app.route("/api/see/<search>")
 def return_search(search):
     return jsonify(search_term(search))
 
