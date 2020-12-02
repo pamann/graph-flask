@@ -1,3 +1,6 @@
+# Static build files
+static/react/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,27 +1,34 @@
-from flask import (Flask, render_template)
-# from pywikiapi import wikipedia as pywiki
-# import wikipedia
-# import time
-# import json
-# from concurrent.futures import ThreadPoolExecutor
-# from concurrent import futures
-# from multiprocessing import Pool
-# import hashlib
+from flask import Flask, render_template
 from flask import request
 from flask import jsonify
+import wikipedia
 
 from bfs_simple import search_term
 
 app = Flask("__main__")
 
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def catch_all(path):
+    return render_template("index.html")
+
+
 @app.route("/")
 def my_index():
-    return render_template("index.html", flask_token="Hello   world")
+    return render_template("index.html")
 
-@app.route("/see")
-def return_search():
-    search = request.args.get('search')
-    # return jsonify(search)
+
+@app.route("/api/meta/<term>", methods=["GET"])
+def metadata_fetch(term):
+    page = wikipedia.page(term, preload=True)
+    res = {"title": page.title, "summary": page.summary, "image": page.images}
+    return jsonify(res)
+
+
+@app.route("/api/see/<search>")
+def return_search(search):
     return jsonify(search_term(search))
 
-app.run(debug=True)
+
+app.run(threaded=True, debug=True)
