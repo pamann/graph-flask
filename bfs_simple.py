@@ -14,7 +14,7 @@ links = set()
 site = pywiki("en")
 pool = ThreadPoolExecutor(8)  # 8 threads, adjust to taste and # of cores
 jobs = []
-views_dict = {}
+# views_dict = {}
 
 
 def query_wiki(ttls, tier):
@@ -23,24 +23,21 @@ def query_wiki(ttls, tier):
         titles=ttls,
         format="json",
         pllimit="max",
-        pvipdays=5,
         lhlimit="max",
-        prop=["links", "linkshere", "description", "pageviews"],
+        prop=["links", "linkshere", "description"],
         redirects=True,
     ):
         page = page.pages[0]
-        return process_comp_jobs(page, tier, page.description, page.pageviews)
+        if "description" in page:
+            return process_comp_jobs(page, tier, page.description)
 
 
-def process_comp_jobs(tt_page_s, tier, desc, views):
-    global views_dict
+def process_comp_jobs(tt_page_s, tier, desc):
     if "links" in tt_page_s and "linkshere" in tt_page_s:
         l = [v.title for v in tt_page_s.links]
         lh = [v.title for v in tt_page_s.linkshere]
         lset = set(l)
         lhset = set(lh)
-        views = np.mean(list(views.values()))
-        views_dict[tt_page_s.title] = views
 
         if tier == 2:
             tt_bidi_links = list(lset.intersection(lhset))
@@ -67,16 +64,7 @@ def fetch_links(root_term):
     root = wikipedia.page(search_r)
     summary = root.summary.split(".")[0]
     aggregate_nodes([root_term], 3, summary)
-
-    mean = np.mean(list(views_dict.values()))
     bidi_links = query_wiki(root_term, 2)
-    bidi_links = set(
-        filter(
-            lambda x: (views_dict[x[0]] > mean if x[0] in views_dict else 0)
-            or x[1] == 1,
-            nodes,
-        )
-    )
 
     with ThreadPoolExecutor(8) as executor:  # start threaded bidi links of second tier
         for bidi_link in bidi_links:
@@ -106,7 +94,6 @@ def aggregate_nodes(n_list, v, desc=""):
 def search_term(search):
     global nodes
     global links
-    global views_dict
 
     fetch_links(search)
     # unpack sets of tuples into lists of dicts
