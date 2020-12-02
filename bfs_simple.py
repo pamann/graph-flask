@@ -62,9 +62,13 @@ def fetch_links(root_term):
 
     wikipedia.set_lang("en")
     suggest = wikipedia.suggest(root_term)
-    search_r = suggest if suggest else root_term
 
-    root = wikipedia.page(search_r)
+    try:
+        search_r = suggest if suggest else root_term
+        root = wikipedia.page(search_r)
+    except wikipedia.DisambiguationError as e:
+        root = e.options[0]
+
     summary = root.summary.split(".")[0]
     aggregate_nodes([search_r], 3, summary)
     bidi_links = query_wiki(search_r, 2)
@@ -102,7 +106,7 @@ def search_term(search):
     # unpack sets of tuples into lists of dicts
     l_nodes = [
         {
-            "name": name,
+            "name": name.title(),
             "id": hashlib.md5(name.encode("utf-8")).hexdigest(),
             "val": val,
             "description": desc,
