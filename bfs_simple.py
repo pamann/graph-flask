@@ -14,7 +14,6 @@ links = set()
 site = pywiki("en")
 pool = ThreadPoolExecutor(8)  # 8 threads, adjust to taste and # of cores
 jobs = []
-# views_dict = {}
 
 
 def query_wiki(ttls, tier):
@@ -60,11 +59,13 @@ def fetch_links(root_term):
     links = set()
 
     wikipedia.set_lang("en")
-    search_r = wikipedia.suggest(root_term)
+    suggest = wikipedia.suggest(root_term)
+    search_r = suggest if suggest else root_term
+
     root = wikipedia.page(search_r)
     summary = root.summary.split(".")[0]
-    aggregate_nodes([root_term], 3, summary)
-    bidi_links = query_wiki(root_term, 2)
+    aggregate_nodes([search_r], 3, summary)
+    bidi_links = query_wiki(search_r, 2)
 
     with ThreadPoolExecutor(8) as executor:  # start threaded bidi links of second tier
         for bidi_link in bidi_links:
