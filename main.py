@@ -19,7 +19,7 @@ def my_index():
     return render_template("index.html")
 
 
-@app.route("/api/meta/<term>")
+@app.route("/api/meta/<term>", methods=["GET"])
 def metadata_fetch(term):
     page = wikipedia.page(term, preload=True)
     res = {"title": page.title, "summary": page.summary, "image": page.images}

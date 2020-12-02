@@ -58,8 +58,10 @@ def fetch_links(root_term):
 
     nodes = set()
     links = set()
-    search_r = wikipedia.search(root_term)
-    root = wikipedia.page(search_r[0])
+
+    wikipedia.set_lang("en")
+    search_r = wikipedia.suggest(root_term)
+    root = wikipedia.page(search_r)
     summary = root.summary.split(".")[0]
     aggregate_nodes([root_term], 3, summary)
     bidi_links = query_wiki(root_term, 2)
