@@ -38,15 +38,15 @@ def process_comp_jobs(tt_page_s, tier, desc):
         lset = set(l)
         lhset = set(lh)
 
-        res_limit = 6 if tier == 2 else 8
+        # res_limit = 6 if tier == 2 else 8
 
         if tier == 2:
             tt_bidi_links = list(lset.intersection(lhset))
-            tt_bidi_links = set(tt_bidi_links[0:res_limit])
+            tt_bidi_links = set(tt_bidi_links)
 
         elif tier == 1:
             tt_bidi_links = list(lset.intersection(lhset))
-            tt_bidi_links = set(tt_bidi_links[0:res_limit])
+            tt_bidi_links = set(tt_bidi_links)
         aggregate_nodes(tt_bidi_links, tier, desc)
         aggregate_links(tt_page_s.title, tt_bidi_links)
         return tt_bidi_links
@@ -124,4 +124,5 @@ def search_term(search):
     ]
 
     graph = {"nodes": l_nodes, "links": l_links}
+    print(graph)
     return graph
