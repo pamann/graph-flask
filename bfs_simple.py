@@ -41,11 +41,11 @@ def process_comp_jobs(tt_page_s, tier, desc):
 
         if tier == 2:
             tt_bidi_links = list(lset.intersection(lhset))
-            tt_bidi_links = set(tt_bidi_links)
+            tt_bidi_links = set(tt_bidi_links[0:10])
 
         elif tier == 1:
             tt_bidi_links = list(lset.intersection(lhset))
-            tt_bidi_links = set(tt_bidi_links)
+            tt_bidi_links = set(tt_bidi_links[0:15])
         aggregate_nodes(tt_bidi_links, tier, desc)
         aggregate_links(tt_page_s.title, tt_bidi_links)
         return tt_bidi_links
@@ -55,9 +55,6 @@ def fetch_links(root_term):
     global nodes
     global links
     global jobs
-
-    nodes = set()
-    links = set()
 
     wikipedia.set_lang("en")
     suggest = wikipedia.suggest(root_term)
@@ -100,7 +97,8 @@ def aggregate_nodes(n_list, v, desc=""):  # TODO: check for nodes being added tw
     global nodes
     if v == 1:
         desc = ""
-    obj = set([(node, v, desc) for node in n_list])
+    vals = [n[0] for n in nodes]
+    obj = set([(node, v, desc) for node in n_list if not node in vals])
     nodes = nodes.union(set(obj))
 
 
