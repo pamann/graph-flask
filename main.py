@@ -21,8 +21,25 @@ def my_index():
 
 @app.route("/api/meta/<term>", methods=["GET"])
 def metadata_fetch(term):
-    page = wikipedia.page(term, preload=True)
-    res = {"title": page.title, "summary": page.summary, "url": page.url}
+    wikipedia.set_lang("en")
+    search = term.title()
+    search_list = wikipedia.search(term)
+    search = search_list[0]
+
+    try:
+        root = wikipedia.page(search)
+        search = root.title
+    except (wikipedia.PageError, wikipedia.DisambiguationError) as e:
+        try:
+            search = search_list[0]
+            root = wikipedia.page(search)
+        except wikipedia.DisambiguationError as e:
+            try:
+                search = e.options[0]
+                root = wikipedia.page(search)
+            except:
+                return {"error": "Whoops, something went wrong :( "}
+    res = {"title": root.title, "summary": root.summary, "url": root.url}
     return jsonify(res)
 
 

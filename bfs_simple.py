@@ -45,7 +45,7 @@ def process_comp_jobs(tt_page_s, tier, desc):
 
         elif tier == 1:
             tt_bidi_links = list(lset.intersection(lhset))
-            tt_bidi_links = set(tt_bidi_links[0:15])
+            tt_bidi_links = set(tt_bidi_links[0:10])
         aggregate_nodes(tt_bidi_links, tier, desc)
         aggregate_links(tt_page_s.title, tt_bidi_links)
         return tt_bidi_links
@@ -57,16 +57,24 @@ def fetch_links(root_term):
     global jobs
 
     wikipedia.set_lang("en")
-    suggest = wikipedia.suggest(root_term)
+    search = root_term.title()
+    search_list = wikipedia.search(root_term)
+    search = search_list[0]
 
     try:
-        search = suggest if suggest else root_term
         root = wikipedia.page(search)
         search = root.title
-    except wikipedia.DisambiguationError as e:
-        search = e.options[0]
-        root = wikipedia.page(search)
-        search = root.title
+    except (wikipedia.PageError, wikipedia.DisambiguationError) as e:
+        try:
+            search = search_list[0]
+            root = wikipedia.page(search)
+        except wikipedia.DisambiguationError as e:
+            try:
+                search = e.options[0]
+                root = wikipedia.page(search)
+                search = root.title
+            except:
+                return {"error": "Whoops, we couldn't find that page"}
 
     summary = root.summary.split(".")[0]
     aggregate_nodes([search], 3, summary)
@@ -129,5 +137,7 @@ def search_term(search):
         for n in l_nodes
         if src == n["name"]
     ]
+    nodes = set()
+    links = set()
     graph = {"nodes": l_nodes, "links": l_links}
     return graph
