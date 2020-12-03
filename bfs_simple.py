@@ -34,8 +34,8 @@ def query_wiki(ttls, tier):
 
 def process_comp_jobs(tt_page_s, tier, desc):
     if "links" in tt_page_s and "linkshere" in tt_page_s:
-        l = [v.title.title() for v in tt_page_s.links]
-        lh = [v.title.title() for v in tt_page_s.linkshere]
+        l = [v.title for v in tt_page_s.links]
+        lh = [v.title for v in tt_page_s.linkshere]
         lset = set(l)
         lhset = set(lh)
 
@@ -63,14 +63,17 @@ def fetch_links(root_term):
     suggest = wikipedia.suggest(root_term)
 
     try:
-        search_r = suggest if suggest else root_term
-        root = wikipedia.page(search_r)
+        search = suggest if suggest else root_term
+        root = wikipedia.page(search)
+        search = root.title
     except wikipedia.DisambiguationError as e:
-        root = e.options[0]
+        search = e.options[0]
+        root = wikipedia.page(search)
+        search = root.title
 
     summary = root.summary.split(".")[0]
-    aggregate_nodes([search_r], 3, summary)
-    bidi_links = query_wiki(search_r, 2)
+    aggregate_nodes([search], 3, summary)
+    bidi_links = query_wiki(search, 2)
 
     with ThreadPoolExecutor(8) as executor:  # start threaded bidi links of second tier
         for bidi_link in bidi_links:
@@ -85,11 +88,15 @@ def fetch_links(root_term):
 
 def aggregate_links(nodeid, res):
     global links
+    global link_counts
+    link_counts[nodeid] = link_counts.get(nodeid, 0) + len(res)
+    for link_dest in res:
+        link_counts[link_dest] = link_counts.get(link_dest, 0) + 1
     obj = [(nodeid, link_dest) for link_dest in res]
     links = links.union(set(obj))
 
 
-def aggregate_nodes(n_list, v, desc=""):
+def aggregate_nodes(n_list, v, desc=""):  # TODO: check for nodes being added twice
     global nodes
     if v == 1:
         desc = ""
@@ -100,6 +107,7 @@ def aggregate_nodes(n_list, v, desc=""):
 def search_term(search):
     global nodes
     global links
+    global link_counts
 
     search = search.title()
     fetch_links(search)
@@ -112,6 +120,7 @@ def search_term(search):
             "description": desc,
         }
         for (name, val, desc) in nodes
+        if name in link_counts
     ]
     l_links = [
         {
@@ -120,7 +129,7 @@ def search_term(search):
         }
         for (src, dest) in links
         for n in l_nodes
-        if src in n["name"]
+        if src == n["name"]
     ]
     graph = {"nodes": l_nodes, "links": l_links}
     return graph
