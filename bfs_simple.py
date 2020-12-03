@@ -14,6 +14,7 @@ links = set()
 site = pywiki("en")
 pool = ThreadPoolExecutor(8)  # 8 threads, adjust to taste and # of cores
 jobs = []
+link_counts = {}
 
 
 def query_wiki(ttls, tier):
@@ -33,12 +34,10 @@ def query_wiki(ttls, tier):
 
 def process_comp_jobs(tt_page_s, tier, desc):
     if "links" in tt_page_s and "linkshere" in tt_page_s:
-        l = [v.title for v in tt_page_s.links]
-        lh = [v.title for v in tt_page_s.linkshere]
+        l = [v.title.title() for v in tt_page_s.links]
+        lh = [v.title.title() for v in tt_page_s.linkshere]
         lset = set(l)
         lhset = set(lh)
-
-        # res_limit = 6 if tier == 2 else 8
 
         if tier == 2:
             tt_bidi_links = list(lset.intersection(lhset))
@@ -102,11 +101,12 @@ def search_term(search):
     global nodes
     global links
 
+    search = search.title()
     fetch_links(search)
     # unpack sets of tuples into lists of dicts
     l_nodes = [
         {
-            "name": name.title(),
+            "name": name,
             "id": hashlib.md5(name.encode("utf-8")).hexdigest(),
             "val": val,
             "description": desc,
@@ -122,6 +122,5 @@ def search_term(search):
         for n in l_nodes
         if src in n["name"]
     ]
-
     graph = {"nodes": l_nodes, "links": l_links}
     return graph
