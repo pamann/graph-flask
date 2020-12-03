@@ -28,11 +28,10 @@ def query_wiki(ttls, tier):
         redirects=True,
     ):
         page = page.pages[0]
-        if "description" in page:
-            return process_comp_jobs(page, tier, page.description)
+        return process_comp_jobs(page, tier)
 
 
-def process_comp_jobs(tt_page_s, tier, desc):
+def process_comp_jobs(tt_page_s, tier, desc=""):
     if "links" in tt_page_s and "linkshere" in tt_page_s:
         l = [v.title for v in tt_page_s.links]
         lh = [v.title for v in tt_page_s.linkshere]
@@ -58,12 +57,13 @@ def fetch_links(root_term):
 
     wikipedia.set_lang("en")
     search = root_term.title()
-    search_list = wikipedia.search(root_term)
-    search = search_list[0]
+    search_list = wikipedia.search(search)
 
     try:
-        root = wikipedia.page(search)
+        print(search)
+        root = wikipedia.WikipediaPage(search)
         search = root.title
+        print(root)
     except (wikipedia.PageError, wikipedia.DisambiguationError) as e:
         try:
             search = search_list[0]
@@ -74,7 +74,7 @@ def fetch_links(root_term):
                 root = wikipedia.page(search)
                 search = root.title
             except:
-                return {"error": "Whoops, we couldn't find that page"}
+                return {"error": "Whoops, we couldn't find that page :("}
 
     summary = root.summary.split(".")[0]
     aggregate_nodes([search], 3, summary)
