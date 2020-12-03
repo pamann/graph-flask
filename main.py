@@ -22,7 +22,7 @@ def my_index():
 @app.route("/api/meta/<term>", methods=["GET"])
 def metadata_fetch(term):
     page = wikipedia.page(term, preload=True)
-    res = {"title": page.title, "summary": page.summary, "image": page.images}
+    res = {"title": page.title, "summary": page.summary, "url": page.url}
     return jsonify(res)
 
 
