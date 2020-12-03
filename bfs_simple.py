@@ -124,5 +124,4 @@ def search_term(search):
     ]
 
     graph = {"nodes": l_nodes, "links": l_links}
-    print(graph)
     return graph
