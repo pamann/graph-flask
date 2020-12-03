@@ -1,6 +1,9 @@
 # Static build files
 static/react/
 
+# Server test script
+test.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
