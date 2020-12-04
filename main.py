@@ -24,20 +24,16 @@ def metadata_fetch(term):
     wikipedia.set_lang("en")
     search = term
     search_list = wikipedia.search(search)
-    print(search_list)
 
     try:
         root = wikipedia.WikipediaPage(search)
-        print(root)
     except (wikipedia.PageError, wikipedia.DisambiguationError) as e:
         try:
             search = search_list[0]
-            print(search)
             root = wikipedia.page(search)
         except wikipedia.DisambiguationError as e:
             try:
                 search = e.options[0]
-                print(e.options)
                 root = wikipedia.page(search)
             except:
                 root = wikipedia.WikipediaPage(search)
