@@ -52,4 +52,4 @@ def return_search(search):
     return jsonify(search_term(search))
 
 
-app.run(threaded=True, debug=True)
+app.run(threaded=True, host = "0.0.0.0")
