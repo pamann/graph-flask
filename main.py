@@ -8,6 +8,7 @@ from bfs_simple import search_term
 
 app = Flask("__main__")
 
+
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def catch_all(path):
@@ -54,4 +55,4 @@ def return_search(search):
 
 
 if __name__ == "__main__":
-    app.run(threaded=True, host = "0.0.0.0", port=8080, debug=True) # , port=8080) #, host = "0.0.0.0"
+    app.run(threaded=True, debug=True)  # , port=8080) #, host = "0.0.0.0"
