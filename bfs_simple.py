@@ -24,14 +24,14 @@ def query_wiki(ttls, tier):
         format="json",
         pllimit="max",
         lhlimit="max",
-        prop=["links", "linkshere", "description"],
+        prop=["links", "linkshere"],
         redirects=True,
     ):
         page = page.pages[0]
         return process_comp_jobs(page, tier)
 
 
-def process_comp_jobs(tt_page_s, tier, desc=""):
+def process_comp_jobs(tt_page_s, tier):
     if "links" in tt_page_s and "linkshere" in tt_page_s:
         l = [v.title for v in tt_page_s.links]
         lh = [v.title for v in tt_page_s.linkshere]
@@ -45,7 +45,12 @@ def process_comp_jobs(tt_page_s, tier, desc=""):
         elif tier == 1:
             tt_bidi_links = list(lset.intersection(lhset))
             tt_bidi_links = set(tt_bidi_links[0:10])
-        aggregate_nodes(tt_bidi_links, tier, desc)
+        tt_bidi_links = [
+            link
+            for link in tt_bidi_links
+            if "(diambiguation)" not in link and "template:" not in link
+        ]
+        aggregate_nodes(tt_bidi_links, tier)
         aggregate_links(tt_page_s.title, tt_bidi_links)
         return tt_bidi_links
 
@@ -60,10 +65,8 @@ def fetch_links(root_term):
     search_list = wikipedia.search(search)
 
     try:
-        print(search)
         root = wikipedia.WikipediaPage(search)
         search = root.title
-        print(root)
     except (wikipedia.PageError, wikipedia.DisambiguationError) as e:
         try:
             search = search_list[0]
@@ -74,10 +77,9 @@ def fetch_links(root_term):
                 root = wikipedia.page(search)
                 search = root.title
             except:
-                return {"error": "Whoops, we couldn't find that page :("}
+                print("yikes")
 
-    summary = root.summary.split(".")[0]
-    aggregate_nodes([search], 3, summary)
+    aggregate_nodes([search], 3)
     bidi_links = query_wiki(search, 2)
 
     with ThreadPoolExecutor(8) as executor:  # start threaded bidi links of second tier
@@ -101,12 +103,10 @@ def aggregate_links(nodeid, res):
     links = links.union(set(obj))
 
 
-def aggregate_nodes(n_list, v, desc=""):  # TODO: check for nodes being added twice
+def aggregate_nodes(n_list, v):  # TODO: check for nodes being added twice
     global nodes
-    if v == 1:
-        desc = ""
     vals = [n[0] for n in nodes]
-    obj = set([(node, v, desc) for node in n_list if not node in vals])
+    obj = set([(node, v) for node in n_list if not node in vals])
     nodes = nodes.union(set(obj))
 
 
@@ -123,9 +123,8 @@ def search_term(search):
             "name": name,
             "id": hashlib.md5(name.encode("utf-8")).hexdigest(),
             "val": val,
-            "description": desc,
         }
-        for (name, val, desc) in nodes
+        for (name, val) in nodes
         if name in link_counts
     ]
     l_links = [
