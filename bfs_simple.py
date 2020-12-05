@@ -48,7 +48,9 @@ def process_comp_jobs(tt_page_s, tier):
         tt_bidi_links = [
             link
             for link in tt_bidi_links
-            if "(diambiguation)" not in link and "template:" not in link
+            if "(diambiguation)" not in link
+            and "template:" not in link
+            and "Template:" not in link
         ]
         aggregate_nodes(tt_bidi_links, tier)
         aggregate_links(tt_page_s.title, tt_bidi_links)
@@ -63,22 +65,31 @@ def fetch_links(root_term):
     wikipedia.set_lang("en")
     search = root_term.title()
     search_list = wikipedia.search(search)
+    suggest_term = wikipedia.suggest(search)
 
     try:
         root = wikipedia.WikipediaPage(search)
         search = root.title
     except (wikipedia.PageError, wikipedia.DisambiguationError) as e:
         try:
-            search = search_list[0]
-            root = wikipedia.page(search)
+            if len(search_list) >= 1:
+                search = search_list[0]
+            else:
+                search = suggest_term
+            root = wikipedia.WikipediaPage(search)
         except wikipedia.DisambiguationError as e:
             try:
                 search = e.options[0]
-                root = wikipedia.page(search)
+                root = wikipedia.WikipediaPage(search)
                 search = root.title
             except:
-                print("yikes")
+                try:
+                    root = wikipedia.page(search, auto_suggest=True)
+                    search = root.title
+                except:
+                    print("Meta api error on search term {term} -> {search}")
 
+    search = search.title()
     aggregate_nodes([search], 3)
     bidi_links = query_wiki(search, 2)
 
