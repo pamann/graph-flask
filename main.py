@@ -20,6 +20,16 @@ def my_index():
     return render_template("index.html")
 
 
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template("server_error.html"), 500
+
+
+@app.errorhandler(402)
+def notfound_server_error(e):
+    return render_template("server_error.html"), 402
+
+
 @app.route("/api/meta/<term>", methods=["GET"])
 def metadata_fetch(term):
     wikipedia.set_lang("en")
