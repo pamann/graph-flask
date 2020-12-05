@@ -22,7 +22,7 @@ def my_index():
 @app.errorhandler(Exception)
 def internal_server_error(e):
     if isinstance(e, HTTPException):
-        return render_template("server_error.html")
+        return render_template("index.html")
     return render_template("server_error.html")
 
 
@@ -30,29 +30,16 @@ def internal_server_error(e):
 def metadata_fetch(term):
     wikipedia.set_lang("en")
     search = term
-    search_list = wikipedia.search(search)
-    suggest_term = wikipedia.suggest(search)
-
     try:
-        root = wikipedia.WikipediaPage(search)
-    except (wikipedia.PageError, wikipedia.DisambiguationError) as e:
+        root = wikipedia.page(search, auto_suggest=True)
+    except wikipedia.DisambiguationError as e:
         try:
-            if len(search_list) >= 1:
-                search = search_list[0]
-            else:
-                search = suggest_term
-            root = wikipedia.WikipediaPage(search)
-        except wikipedia.DisambiguationError as e:
-            try:
-                search = e.options[0]
-                root = wikipedia.WikipediaPage(search)
-            except:
-                root = wikipedia.page(search, auto_suggest=True)
+            search = e.options[0]
+            root = wikipedia.page(search, auto_suggest=True)
         except:
-            try:
-                root = wikipedia.page(search, auto_suggest=True)
-            except:
-                print("Meta api error on search term {term} -> {search}")
+            root = wikipedia.WikipediaPage(search)
+    except:
+        print("Meta api error on search term {term} -> {search}")
 
     res = {"title": root.title, "summary": root.summary, "url": root.url}
     return jsonify(res)
