@@ -26,24 +26,28 @@ def metadata_fetch(term):
     wikipedia.set_lang("en")
     search = term
     search_list = wikipedia.search(search)
+    suggest_term = wikipedia.suggest(search)
 
     try:
         root = wikipedia.WikipediaPage(search)
     except (wikipedia.PageError, wikipedia.DisambiguationError) as e:
         try:
-            search = search_list[0]
-            root = wikipedia.page(search)
+            if len(search_list) >= 1:
+                search = search_list[0]
+            else:
+                search = suggest_term
+            root = wikipedia.WikipediaPage(search)
         except wikipedia.DisambiguationError as e:
             try:
                 search = e.options[0]
-                root = wikipedia.page(search)
-            except:
                 root = wikipedia.WikipediaPage(search)
+            except:
+                root = wikipedia.page(search, auto_suggest=True)
         except:
             try:
-                root = wikipedia.WikipediaPage(search)
+                root = wikipedia.page(search, auto_suggest=True)
             except:
-                return {"error": "Whoops, something went wrong :( "}
+                print("Meta api error on search term {term} -> {search}")
 
     res = {"title": root.title, "summary": root.summary, "url": root.url}
     return jsonify(res)
@@ -55,4 +59,4 @@ def return_search(search):
 
 
 if __name__ == "__main__":
-    app.run(threaded=True, debug=True, host = "0.0.0.0") #, port=8080)
+    app.run(threaded=True, debug=True, host="0.0.0.0")  # , port=8080)
