@@ -74,9 +74,12 @@ def fetch_links(root_term):
         try:
             if len(search_list) >= 1:
                 search = search_list[0]
-            else:
+                root = wikipedia.WikipediaPage(search)
+            elif suggest_term:
                 search = suggest_term
-            root = wikipedia.WikipediaPage(search)
+                root = wikipedia.WikipediaPage(search)
+            else:
+                root = wikipedia.page(search, auto_suggest=True)
         except wikipedia.DisambiguationError as e:
             try:
                 search = e.options[0]
