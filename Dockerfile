@@ -1,7 +1,5 @@
 FROM python:3.8
-WORKDIR /project
-ADD . /project
-RUN pip install -r requirements.txt
-EXPOSE 5000
-ENTRYPOINT [ "python" ]
-CMD ["app.py"]
+WORKDIR /app
+ADD . /app
+RUN pip3 install -r requirements.txt
+ENTRYPOINT [ "bash","./gu_start.sh" ]
