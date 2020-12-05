@@ -68,9 +68,11 @@ def fetch_links(root_term):
     search = root_term.title()
 
     try:
-        root = wikipedia.page(search)
+        root = wikipedia.WikipediaPage(search)
     except wikipedia.PageError as e:
         try:
+            root = wikipedia.page(search)
+        except wikipedia.PageError:
             search = wikipedia.search(search)
             root = wikipedia.page(search[0])
         except wikipedia.DisambiguationError as e:
