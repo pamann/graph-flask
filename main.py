@@ -2,8 +2,7 @@ from flask import Flask, render_template
 from flask import request
 from flask import jsonify
 import wikipedia
-import os
-import logging
+from werkzeug.exceptions import HTTPException
 from bfs_simple import search_term
 
 app = Flask(__name__)
@@ -20,8 +19,10 @@ def my_index():
     return render_template("index.html")
 
 
-@app.errorhandler(500)
+@app.errorhandler(Exception)
 def internal_server_error(e):
+    if isinstance(e, HTTPException):
+        return render_template("server_error.html")
     return render_template("server_error.html")
 
 
@@ -63,4 +64,4 @@ def return_search(search):
 
 
 if __name__ == "__main__":
-    app.run(threaded=True, host="0.0.0.0")
+    app.run(threaded=True)  # host="0.0.0.0"
