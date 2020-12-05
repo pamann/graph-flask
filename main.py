@@ -31,15 +31,27 @@ def metadata_fetch(term):
     wikipedia.set_lang("en")
     search = term
     try:
-        root = wikipedia.page(search, auto_suggest=True)
+        root = wikipedia.page(search)
+    except wikipedia.PageError as e:
+        try:
+            search = wikipedia.search(search)
+            root = wikipedia.page(search[0])
+        except wikipedia.DisambiguationError as e:
+            search = e.options[0]
+            root = wikipedia.page(search)
+        except:
+            root = wikipedia.page(search)
     except wikipedia.DisambiguationError as e:
         try:
-            search = e.options[0]
-            root = wikipedia.page(search, auto_suggest=True)
-        except:
+            search = wikipedia.search(search)[0]
             root = wikipedia.WikipediaPage(search)
+        except wikipedia.DisambiguationError as e:
+            search = e.options[0]
+            root = wikipedia.page(search)
+        except:
+            root = wikipedia.page(search, auto_suggest=True)
     except:
-        print("Meta api error on search term {term} -> {search}")
+        print("See api error on search term {root_term} -> {search}")
 
     res = {"title": root.title, "summary": root.summary, "url": root.url}
     return jsonify(res)

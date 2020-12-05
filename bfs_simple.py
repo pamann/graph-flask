@@ -52,6 +52,7 @@ def process_comp_jobs(tt_page_s, tier):
             and "Template:" not in link
             and "Category:" not in link
             and "Help:" not in link
+            and "Talk:" not in link
         ]
         aggregate_nodes(tt_bidi_links, tier)
         aggregate_links(tt_page_s.title, tt_bidi_links)
@@ -67,13 +68,25 @@ def fetch_links(root_term):
     search = root_term.title()
 
     try:
-        root = wikipedia.page(search, auto_suggest=True)
+        root = wikipedia.page(search)
+    except wikipedia.PageError as e:
+        try:
+            search = wikipedia.search(search)
+            root = wikipedia.page(search[0])
+        except wikipedia.DisambiguationError as e:
+            search = e.options[0]
+            root = wikipedia.page(search)
+        except:
+            root = wikipedia.page(search)
     except wikipedia.DisambiguationError as e:
         try:
-            search = e.options[0]
-            root = wikipedia.page(search, auto_suggest=True)
-        except:
+            search = wikipedia.search(search)[0]
             root = wikipedia.WikipediaPage(search)
+        except wikipedia.DisambiguationError as e:
+            search = e.options[0]
+            root = wikipedia.page(search)
+        except:
+            root = wikipedia.page(search, auto_suggest=True)
     except:
         print("See api error on search term {root_term} -> {search}")
 
