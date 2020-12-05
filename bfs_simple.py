@@ -53,6 +53,7 @@ def process_comp_jobs(tt_page_s, tier):
             and "Category:" not in link
             and "Help:" not in link
             and "Talk:" not in link
+            and "Portal:" not in link
         ]
         aggregate_nodes(tt_bidi_links, tier)
         aggregate_links(tt_page_s.title, tt_bidi_links)
