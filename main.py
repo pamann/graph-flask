@@ -22,12 +22,7 @@ def my_index():
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return render_template("server_error.html"), 500
-
-
-@app.errorhandler(402)
-def notfound_server_error(e):
-    return render_template("server_error.html"), 402
+    return render_template("server_error.html")
 
 
 @app.route("/api/meta/<term>", methods=["GET"])
