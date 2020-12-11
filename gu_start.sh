@@ -1,3 +1,3 @@
 #!/bin/sh
 
-gunicorn -w 2 --threads 8 -b :8080 main:app
+gunicorn -w 4 --threads 12 -b :8080 main:app
