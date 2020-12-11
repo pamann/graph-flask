@@ -1,11 +1,17 @@
-from flask import Flask, render_template
-from flask import request
-from flask import jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 import wikipedia
 from werkzeug.exceptions import HTTPException
 from bfs_simple import search_term
 
 app = Flask(__name__)
+
+
+@app.before_request
+def before_request():
+    if not request.is_secure:
+        url = request.url.replace("http://", "https://", 1)
+        code = 301
+        return redirect(url, code=code)
 
 
 @app.route("/", defaults={"path": ""})
